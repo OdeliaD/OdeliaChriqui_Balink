@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "WeatherNextDays";
+}
+
+    <div class="" style="">
+        <select class="" id="CitiesList" style="text-align:center">
+            <option style="padding:10px">-- Select a country --</option>
+            <option value="2459115">New York</option>
+            <option value="2442047">Los Angeles</option>
+            <option value="610264">Marseille</option>
+            <option value="753692">Barcelona </option>
+            <option value="721943">Rome </option>
+        </select>
+        <br /><br />
+        <hr />
+
+        <div id="area-chart" style=""></div>
+
+    </div>
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
+
+<script>
+    document.getElementById("CitiesList").addEventListener("change", myFunction);
+
+    function myFunction() {
+        document.getElementById("area-chart").innerHTML = "";
+
+        const link = 'https://www.metaweather.com/api/location/' + this.value + '/';
+
+        fetch(link, { headers: { "Content-Type": "application/json; charset=utf-8" } })
+            .then(res => res.json())
+            .then(response => {
+                console.log(response)
+                let myJsonString = JSON.stringify(response.consolidated_weather);
+
+                let data = response.consolidated_weather,
+                    config = {
+                        data: data,
+                        xkey: ['applicable_date'],
+                        ykeys: ['the_temp','humidity'],
+                        labels: ['Temparature', 'Humidity'],
+                        xLabelFormat: function (d) {
+                            return ("0" + d.getDate()).slice(-2) + '/' + ("0" + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear();
+                        },
+                        yLabelFormat: function (h) {
+                            return (Math.round(h * 100) / 100).toFixed(2);
+                        },
+                        //parseTime:false,
+                        fillOpacity: 0.6,
+                        hideHover: 'auto',
+                        //behaveLikeLine: true,
+                        resize: true,
+                        //pointFillColors: ['#6da1c2'],
+                        //pointStrokeColors: ['black'],
+                        lineColors: ['#a0d0e0', '#3c8dbc']
+                    };
+                config.element = 'area-chart';
+                Morris.Area(config);
+            })
+            .catch(err => {
+                console.log("sorry, there are no results for your search")
+            });
+    }
+</script>
